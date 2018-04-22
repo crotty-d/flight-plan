@@ -1,5 +1,5 @@
-from math import pi, sin, cos, acos
-import 
+import route_leg_distances
+import airports
 
 def cost_between_airports(airport1, airport2):
     """
@@ -9,7 +9,7 @@ def cost_between_airports(airport1, airport2):
 
     distance = route_leg_distances.getDistance(airport1, airport2)
     
-    cost = distance
+    cost = distance * this.get_cost_weight(airport1, airport2)
     
     return cost
 
