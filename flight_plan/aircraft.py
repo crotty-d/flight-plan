@@ -1,10 +1,9 @@
 class Aircraft:
     """
-    Aircraft class: An Airplane has to be fuelled before it can takeoff
+    Aircraft class: An Airplane has to be fueled before it can takeoff
     """
     
     __MINFUEL = 100 # minimum amount of fuel for take off no matter what aircraft
-    # declared here as a private static class variable
 
     def init(self, flightNumber=""):
         self.flightNumber = flightNumber # you must have a flight number assigned to fly
