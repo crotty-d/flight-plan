@@ -1,13 +1,16 @@
 import collections
 import math
+import itertools
+
+from airports import Airport, AirportAtlas
  
  
 # class RouteDistanceGraph:
-#     ''' 
+#     """ 
 #     Undirected graph of airports for calculating different itinerary distances.
 #     
 #     Weighted by inter-airport distance.
-#     '''
+#     """
 # 
 #     def __init__(self):
 #         self.vertices = set()
@@ -34,27 +37,28 @@ import math
 #     
     
 class RouteCostGraph:
-    ''' 
+    """ 
     Undirected graph of airports for calculating different itinerary costs.
     
     Weighted by fuel cost (inter-airport distance * Euro conversion rate).
-    '''
+    """
 
-    def __init__(self, airports: list): #TODO: take in dict or list 
+    def __init__(self, airport_atlas): #TODO: take in dict or list 
         self.vertices = set()
 
-        # makes the default value for all vertices an empty list
+        # Default value for all vertices set as empty list
         self.edges = collections.defaultdict(list)
         self.weights = {}
+        #TODO: Loops to generate graph from AirportAtlas using add edge and vertex methods
  
-    def add_vertex(self, value):
-        self.vertices.add(value)
+    def add_vertex(self, airport):
+        self.vertices.add(airport)
  
-    def add_edge(self, from_vertex, to_vertex, distance):
+    def add_edge(self, from_vertex, to_vertex): # TODO: from/to_airport not vertex?
         if from_vertex != to_vertex: # no self edges
-            self.edges[to_vertex].append(from_vertex) # undirected graph
-            self.weights[(from_vertex, to_vertex)] = distance
-            self.weights[(to_vertex, from_vertex)] = distance # undirected graph
+            self.edges[to_vertex].append(from_vertex)
+            self.weights[(from_vertex, to_vertex)] = AirportAtlas.cost_between_airports(from_vertex, to_vertex)
+            self.weights[(to_vertex, from_vertex)] = AirportAtlas.cost_between_airports(to_vertex, from_vertex)
  
     def __str__(self):
         string = "Vertices: " + str(self.vertices) + "\n"
@@ -63,8 +67,18 @@ class RouteCostGraph:
         return string
 
 
+class itinerary:
 
-
+    def __init__(self, airport_list):
+        self.airport_list = airport_list
+        
+    def all_permutations(self): # TODO: limit to perms starting and ending on home
+        itertools.permutations(self.airport_list)
+        
+    def cheapest_route(self, route_cost_graph):
+        # TODO: add code
+        pass
+    
  
 
 def dijkstra(graph, start):
@@ -102,8 +116,9 @@ def dijkstra(graph, start):
  
  
 def shortest_path(graph, start, end):
-    '''Uses dijkstra function in order to output the shortest path from start to end
-    '''
+    """
+    Uses dijkstra function in order to output the shortest path from start to end
+    """
     delta, previous = dijkstra(graph, start)
 
     path = []
@@ -119,9 +134,9 @@ def shortest_path(graph, start, end):
   
 if __name__ == "__main__":
     
-    airport_dict = airport_atlas.loadData('input/airports.csv')
+    airport_atlas = AirportAtlas.loadData('input/airports.csv')
     
-    g = RouteCostGraph(airports)
+    g = RouteCostGraph(airport_atlas)
 
     #     vertex a adjacency list
     g.add_edge('a', 'b', 4)
