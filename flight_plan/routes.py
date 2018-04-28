@@ -1,7 +1,7 @@
 import collections
 import itertools
 
-from airports import Airport, AirportAtlas
+from flight_plan.airports import Airport, AirportAtlas
 
   
 class RouteCostGraph:
@@ -43,7 +43,10 @@ class Itinerary:
         self.airport_list = airport_list
         
     def all_permutations(self): # TODO: limit to perms starting and ending on home
-        return itertools.permutations(self.airport_list)
+        
+        permutations = itertools.permutations(self.airport_list[1:-1])
+        
+        return list(permutations)
         
     def cheapest_route(self, route_cost_graph): # TODO: cost graph as param of init?
         # TODO: add code to calculate cheapest route via route_cost_graph
@@ -54,14 +57,6 @@ class Itinerary:
     
     # TODO: shortest route method?
     
-  
-if __name__ == "__main__":
-    
-    airport_atlas = AirportAtlas.load_data('input/airports.csv')
-    
-    g = RouteCostGraph(airport_atlas)
-    
-    cheapest_route, route_cost = Itinerary.cheapest_route(g)
     
     
 
