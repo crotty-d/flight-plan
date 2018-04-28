@@ -28,8 +28,7 @@ def test_default_AirportAtlas_construct():
     assert default_atlas.getDict() == {}, 'Returned: {}'.format(default_atlas.getDict)
 
 def test_AirportAtlas_construct_from_csv():   
-    csv_atlas = AirportAtlas()
-    csv_atlas.load_csv('airport.csv')
+    csv_atlas = AirportAtlas(csv_filename='airport.csv')
     airport_dict = csv_atlas.getDict()
     assert airport_dict is not {}
     

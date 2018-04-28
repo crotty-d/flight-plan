@@ -55,24 +55,33 @@ class AirportAtlas:
     
     Provides methods to perform various calculations on this data,
     and a method ro load in airport data from a CSV file.
-    """   
+    """
+    # Dictionary to store Airport objects
+    _airports_dict = {} 
         
-    def __init__(self, dict_of_Airports={}):
+    def __init__(self, dict_of_Airports={}, csv_filename:str=None):
         """
-        Create instance of AirportAtlas comprising dictionary of Airport instances.
+        Create instance of AirportAtlas comprising dictionary of Airport objects.
         
         Default is empty dictionary.
-        Dictionary values must be instances of the Airport object.
+        Dictionary values must be Airport objects.
+        Set csv_filename parameters to construct dictionary from the csv
         """
-                   
-        self._airports_dict = dict_of_Airports
+        
+        if csv_filename is not None:
+            with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
+                reader = csv.reader(f)
+                for line in reader:
+                    self._airports_dict[line[4]] = Airport(line[4], line[2], line[3], float(line[6]), float(line[7]))
+        else:           
+            self._airports_dict = dict_of_Airports
     
-    def load_csv(self, csv_filename: str):
-        """Create dictionary of Airport instances from airports data in CSV file"""
-        with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
-            reader = csv.reader(f)
-            for line in reader:
-                self._airports_dict[line[4]] = Airport(line[4], line[2], line[3], float(line[6]), float(line[7]))                
+#     def load_csv(self, csv_filename: str):
+#         """Create dictionary of Airport instances from airports data in CSV file"""
+#         with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
+#             reader = csv.reader(f)
+#             for line in reader:
+#                 self._airports_dict[line[4]] = Airport(line[4], line[2], line[3], float(line[6]), float(line[7]))                
                 
     def getDict(self):
         """Return dictionary of Airport instances for all airports in atlas"""
@@ -89,36 +98,25 @@ class AirportAtlas:
         All parameters are floats.
         """        
         R_EARTH = 6371 # radius of earth in km
-        print(longitude1)
         theta1 = longitude1 * (2 * pi) / 360
         theta2 = longitude2 * (2 * pi) / 360
         phi1 = (90 - latitude1) * (2 * pi) / 360
         phi2 = (90 - latitude2) * (2 * pi) / 360
         distance = acos(sin(phi1) * sin(phi2) * cos(theta1 - theta2) + cos(phi1) * cos(phi2)) * R_EARTH
-        
         return distance    
     
     def distance_between_airports(self, airport1, airport2):
         """
         Return the distance between two airports as a float.
         """
-        distance = self.great_circle_distance(airport1.get_latitude(), airport1.get_longitude(), airport2.get_latitude(), airport2.get_longitude())
+        coordinates = (airport1.get_latitude(), airport1.get_longitude(), airport2.get_latitude(), airport2.get_longitude())
+        distance = self.great_circle_distance(*coordinates)
         return distance    
     
-    def cost_between_airports(self, airport1, airport2):
+    def cost_between_airports(self, distance, origin_exch_rate):
         """
         Return the (fuel) cost between two airports as a float.
         """
-        distance = self.distance_between_airports(airport1, airport2)
-        exch_rate = airport1.local_euro_exch_rate(airport1)
-        fuel_cost = distance * exch_rate
+        fuel_cost = distance * origin_exch_rate
         return fuel_cost
-
-def main() :
-    a = AirportAtlas()
-    print(a.getDict())
-
-if __name__ == "main":
-    main ()
-
 
