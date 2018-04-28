@@ -7,7 +7,7 @@ import pytest
 import sys
 sys.path.append('.')
 
-from flight_plan.airports import Airport, AirportAtlas
+from flight_plan.airports import Airport, AirportAtlas  
 
 # -- Airport -- 
 def test_Aiport():
@@ -23,27 +23,23 @@ def test_Aiport():
     assert airport.get_longitude() == params[4]
     
 # -- AirportAtlas --
-def test_default_AirportAtlas_construct():
-    default_atlas = AirportAtlas()
-    assert default_atlas.getDict() == {}, 'Returned: {}'.format(default_atlas.getDict)
+def test_construct_default_AirportAtlas():
+    atlas = AirportAtlas()
+    assert atlas.get_dict() == {}
 
-def test_AirportAtlas_construct_from_csv():   
-    csv_atlas = AirportAtlas(csv_filename='airport.csv')
-    airport_dict = csv_atlas.getDict()
+def test_construct_AirportAtlas_from_csv():   
+    atlas = AirportAtlas(csv_filename='airport.csv')
+    airport_dict = atlas.get_dict()
     assert airport_dict is not {}
     
-    return csv_atlas
+    return atlas
 
 # Create airport atlas from CSV for use in tests below
-csv_atlas = test_AirportAtlas_construct_from_csv()
+csv_atlas = test_construct_AirportAtlas_from_csv()
     
-def test_AirportAtlas_dict():
-    airports_dict = csv_atlas.getDict()
-    airport_code1 = 'DUB'
-    airport_code2 = 'JFK'      
-    assert airports_dict[airport_code1].get_city() == 'Dublin'
-    assert airports_dict[airport_code2].get_city() == 'New York'
-
+def test_AirportAtlas_dict():      
+    assert csv_atlas.get_airport('DUB').get_city() == 'Dublin'
+    assert csv_atlas.get_airport('JFK').get_city() == 'New York'
     
 def test_distance():
     airport1 = csv_atlas.get_airport('DUB')
@@ -51,4 +47,5 @@ def test_distance():
     distance = csv_atlas.distance_between_airports(airport1, airport2)
     
     assert int(round(distance, 0)) == 5103
+
 

@@ -38,8 +38,9 @@ class AirportAtlas:
     
     Also provides methods to perform various calculations on this data.
     """
+    
     # Dictionary to store Airport objects
-    _airports_dict = {} 
+    __airports_dict = {} 
         
     def __init__(self, dict_of_Airports={}, csv_filename:str=None):
         """
@@ -47,7 +48,7 @@ class AirportAtlas:
         
         Default is empty dictionary.
         Dictionary values must be Airport objects.
-        Set csv_filename parameters to construct dictionary from the csv
+        Set csv_filename parameter to construct dictionary from the csv
         """
         
         if csv_filename is not None:
@@ -56,20 +57,14 @@ class AirportAtlas:
                 for line in reader:
                     self._airports_dict[line[4]] = Airport(line[4], line[2], line[3], line[6], line[7])
         else:           
-            self._airports_dict = dict_of_Airports
-    
-#     def load_csv(self, csv_filename: str):
-#         """Create dictionary of Airport instances from airports data in CSV file"""
-#         with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
-#             reader = csv.reader(f)
-#             for line in reader:
-#                 self._airports_dict[line[4]] = Airport(line[4], line[2], line[3], float(line[6]), float(line[7]))                
+            self._airports_dict = dict_of_Airports             
                 
-    def getDict(self):
+    
+    def get_dict(self):
         """Return dictionary of Airport instances for all airports in atlas"""
         return self._airports_dict
     
-    def get_airport(self, airport_code):
+    def get_airport(self, airport_code:str):
         """Return Airport instance specified in airport code parameter"""
         return self._airports_dict[airport_code]
     
@@ -95,10 +90,5 @@ class AirportAtlas:
         distance = self.great_circle_distance(*coordinates)
         return distance    
     
-    def cost_between_airports(self, distance, origin_exch_rate):
-        """
-        Return the (fuel) cost between two airports as a float.
-        """
-        fuel_cost = distance * origin_exch_rate
-        return fuel_cost
+
 

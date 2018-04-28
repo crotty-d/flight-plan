@@ -11,8 +11,7 @@ def test_input_data_exsists():
     actual_files = os.listdir('/home/d/Git/flight_plan/flight_plan/input') # FIXME: make path relative
     required_files = ['airport.csv', 'countrycurrency.csv', 'currencyrates.csv']
     for file in required_files:
-        assert file in actual_files
-        
+        assert file in actual_files        
         
 def test_itinerary_input_file_exsists(): 
     actual_files = os.listdir('/home/d/Git/flight_plan/flight_plan/input') # FIXME: make path relative

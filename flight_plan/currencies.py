@@ -1,81 +1,75 @@
 import os
 import csv
-import pandas as pd
 
 
-class Currency:
+class CountryCurrencyCodes:
     """
-    Class for storing and accessing information about a currency.
+    Class for storing and accessing the currency codes of all countries.
     
-    Euro exchange rate parameter can be a float, int or string representation of a number;
-    will be converted to float.
+    Can take country and currency code from CSV file.
     """
     
-    def __init__(self, code:str, country:str, euro_exch_rate):
-        self._code = code
-        self._country = country
-        self._euro_exch_rate = float(euro_exch_rate)
-        
-    def get_code(self):
-        return self._code
+    # Dictionary to store country and currency code
+    __code_dict = {}
     
-    def get_country(self):
-        return self._country
-    
-    def get_euro_exch_rate(self):
-        return self._euro_exch_rate  
-    
-
-class CurrenciesInfo:
-    """
-    Stores currency data from CSV files in dictionary
-    """
-    # Dictionary to store Currency objects
-    _currencies_dict = {} 
-        
-    def __init__(self, dict_of_Currencies={}, currencies_csv:str=None, euro_rates_csv:str=None):
+    def __init__(self, currency_code_dict={}, csv_filename:str=None):
         """
-        Create CurrenciesInfo object comprising dictionary of Currency objects.
+        Create CountryCurrencyCodes object.
         
-        Set csv_filename parameters to construct dictionary from the CSVs; both must be non-null.
-        If both not set, the specified or default dictionary will be used.
         Default is empty dictionary.
+        Set csv_filename parameter to construct dictionary from the CSV
         """
-        # Use dictionary or csv parameters to create object, depending on which are set
-        if currencies_csv is None and euro_rates_csv is None:
-            self._Currencys_dict = dict_of_Currencies
-        elif currencies_csv is None or euro_rates_csv is None:
-            print('Error: {} requires both CSV parameters to be set and valid.'.format(__name__))
-        else:
-            curr_file_path = os.path.join('/home/d/Git/flight_plan/flight_plan/input', currencies_csv) #FIXME: relative path
-            exch_file_params = os.path.join('/home/d/Git/flight_plan/flight_plan/input', euro_rates_csv) #FIXME: relative path
-#             
-#             with open(curr_file_path, 'rt', encoding='utf8') as f_curr, open(exch_file_params, 'rt', encoding='utf8') as f_exch: 
-#                 curr_reader = csv.reader(f_curr)
-#                 exch_reader = csv.reader(f_exch)
-#                 for curr_line, exch_line in zip(curr_reader[1:], exch_reader):
-#                     self._currencies_dict[curr_line[4]] = Currency(curr_line[4], curr_line[0], exch_line[2])
+        try:
+            if csv_filename is not None: #TODO: handle missing
+                with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
+                    reader = csv.reader(f)
+                    next(reader) # skip field names (first row)
+                    for line in reader:
+                        self._code_dict[line[0]] = line[14]
+            else:           
+                self._code_dict = currency_code_dict
+        except IOError as e:
+            print(e)
+        
+    def get_dict(self):
+        return self._code_dict
+    
+    def get_code(self, country:str):
+        return self._code_dict[country]
+    
 
-            df_curr = pd.read_csv(curr_file_path, skipinitialspace=True)
-            df_exch = pd.read_csv(exch_file_params, skipinitialspace=True)
-            df_combined = pd.concat(df_curr[])
-
-
-# class EuroExchangeRates: #FIXME: Complete class
-#     """
-#     Stores country euro exchange rate data from CSV file in dictionary
-#     """   
-#     def __init__(self):
-#         self._euro_rate_dict = {}
-#     
-#     def load_data(self, csv_filename: str):
-#         """...."""
-#         with open(os.path.join('input', csv_filename), 'rt', encoding='utf8') as f:
-#             reader = csv.reader(f)
-#             for line in reader:
-#                 self._euro_rate_dict[line[4]] = Currency(line[2], line[3], line[6], line[7])
-#                 
-#     def local_euro_exch_rate(self, country):
-#         # TODO: get country for each Currency and then
-#         exch_rate = 1 # FIXME: placeholder
-#         return exch_rate
+class EuroRates:
+    """
+    Class for storing and accessing the euro exchange rates for all currencies.
+    
+    Can take country and currency code from CSV file.
+    Currencies represented by their 3-character alphabetic code.
+    """
+    
+    # Dictionary to store euro exchange rate
+    __rate_dict = {}
+    
+    def __init__(self, euro_rate_dict={}, csv_filename:str=None):
+        """
+        Create EuroRates object.
+        
+        Default is empty dictionary.
+        Set csv_filename parameter to construct dictionary from the CSV
+        """
+        try:
+            if csv_filename is not None: #TODO: handle missing
+                with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
+                    reader = csv.reader(f)
+                    for line in reader:
+                        self._rate_dict[line[1]] = float(line[2])
+            else:           
+                self._rate_dict = euro_rate_dict
+        except IOError as e:
+            print(e)
+            
+    def get_dict(self):
+        return self._rate_dict
+        
+    def get_rate(self, currency_code:str):
+        return self._rate_dict[currency_code]
+    
