@@ -4,14 +4,17 @@ from math import pi, sin, cos, acos
 
 class Airport:
     """
-    Class for storing and accessing information about an airport
+    Class for storing and accessing information about an airport.
+    
+    Latitude and longitude parameters can be a float, int or string representation of a number;
+    will be converted to float.
     """
     def __init__(self, code: str, city: str, country: str, lat: float, long: float):
         self._code = code
         self._city = city
         self._country = country
-        self._latitude = lat
-        self._longitude = long
+        self._latitude = float(lat)
+        self._longitude = float(long)
         
     def get_code(self):
         return self._code
@@ -26,35 +29,14 @@ class Airport:
         return self._latitude
     
     def get_longitude(self):
-        return self._longitude
-    
-
-class EuroExchangeRates: #FIXME: Complete class
-    """
-    Stores country euro exchange rate data from CSV file
-    """   
-    def __init__(self):
-        self._euro_rate_dict = {}
-    
-    def load_data(self, csv_filename: str):
-        """...."""
-        with open(os.path.join('input', csv_filename), 'rt', encoding='utf8') as f:
-            reader = csv.reader(f)
-            for line in reader:
-                self._euro_rate_dict[line[4]] = Airport(line[2], line[3], line[6], line[7])
-                
-    def local_euro_exch_rate(self, country):
-        # TODO: get country for each airport and then
-        exch_rate = 1 # FIXME: placeholder
-        return exch_rate
-    
+        return self._longitude  
+ 
    
 class AirportAtlas:
     """
     Stores airport data in a dictionary of airport objects.
     
-    Provides methods to perform various calculations on this data,
-    and a method ro load in airport data from a CSV file.
+    Also provides methods to perform various calculations on this data.
     """
     # Dictionary to store Airport objects
     _airports_dict = {} 
@@ -72,7 +54,7 @@ class AirportAtlas:
             with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
                 reader = csv.reader(f)
                 for line in reader:
-                    self._airports_dict[line[4]] = Airport(line[4], line[2], line[3], float(line[6]), float(line[7]))
+                    self._airports_dict[line[4]] = Airport(line[4], line[2], line[3], line[6], line[7])
         else:           
             self._airports_dict = dict_of_Airports
     

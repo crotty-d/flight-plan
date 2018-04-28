@@ -7,7 +7,7 @@ import pytest
 import sys
 sys.path.append('.')
 
-from flight_plan.airports import Airport, EuroExchangeRates, AirportAtlas
+from flight_plan.airports import Airport, AirportAtlas
 
 # -- Airport -- 
 def test_Aiport():
