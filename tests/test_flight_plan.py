@@ -3,6 +3,7 @@
 
 """Tests for flight_plan module."""
 
+import pytest
 # from click.testing import CliRunner
 #   
 # from flight_plan import flight_plan

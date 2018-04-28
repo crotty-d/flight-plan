@@ -13,7 +13,7 @@ class Aircraft:
 
     def _fuelCheck(self):
         if self._fuel < self.MIN_fuel:
-            print("[", self.flightNumber,"] Fuel below safe limit: ", self._fuel, /
+            print("[", self.flightNumber,"] Fuel below safe limit: ", self._fuel, \
             "less than", self.MIN_fuel)
             self._fuelCheck = False
         else:

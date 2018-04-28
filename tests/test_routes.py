@@ -3,6 +3,7 @@
 
 """Tests for routes module."""
 
+import pytest
 import sys
 sys.path.append('.')
 

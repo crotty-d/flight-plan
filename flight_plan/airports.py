@@ -6,9 +6,9 @@ class Airport:
     """
     Class for storing and accessing information about an airport
     """
-    def __init__(self, code, name, country, lat, long):
+    def __init__(self, code: str, city: str, country: str, lat: float, long: float):
         self._code = code
-        self._name = name
+        self._city = city
         self._country = country
         self._latitude = lat
         self._longitude = long
@@ -16,8 +16,8 @@ class Airport:
     def get_code(self):
         return self._code
     
-    def get_name(self):
-        return self._name
+    def get_city(self):
+        return self._city
         
     def get_country(self):
         return self._country
@@ -36,7 +36,7 @@ class EuroExchangeRates: #FIXME: Complete class
     def __init__(self):
         self._euro_rate_dict = {}
     
-    def load_data(self, csv_filename):
+    def load_data(self, csv_filename: str):
         """...."""
         with open(os.path.join('input', csv_filename), 'rt', encoding='utf8') as f:
             reader = csv.reader(f)
@@ -56,27 +56,42 @@ class AirportAtlas:
     Provides methods to perform various calculations on this data,
     and a method ro load in airport data from a CSV file.
     """   
-    
-    def __init__(self):
+        
+    def __init__(self, dict_of_Airports={}):
         """
-        Create default instance of AirportAtlas: an empty dictionary.
+        Create instance of AirportAtlas comprising dictionary of Airport instances.
+        
+        Default is empty dictionary.
+        Dictionary values must be instances of the Airport object.
         """
-        self._airports_dict = {}      
+                   
+        self._airports_dict = dict_of_Airports
     
-    def load_data(self, csv_filename):
-        """Create dictionary of Airport objects from airports data in CSV file"""
-        with open(os.path.join('input', csv_filename), 'rt', encoding='utf8') as f:
+    def load_csv(self, csv_filename: str):
+        """Create dictionary of Airport instances from airports data in CSV file"""
+        with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
             reader = csv.reader(f)
             for line in reader:
-                self._airports_dict[line[4]] = Airport(line[2], line[3], line[6], line[7])                
+                self._airports_dict[line[4]] = Airport(line[4], line[2], line[3], float(line[6]), float(line[7]))                
                 
+    def getDict(self):
+        """Return dictionary of Airport instances for all airports in atlas"""
+        return self._airports_dict
+    
+    def get_airport(self, airport_code):
+        """Return Airport instance specified in airport code parameter"""
+        return self._airports_dict[airport_code]
+    
     def great_circle_distance(self, latitude1, longitude1, latitude2, longitude2):
         """
         Return the distance between two sets of geographical coordinates as a float.
-            """        
+        
+        All parameters are floats.
+        """        
         R_EARTH = 6371 # radius of earth in km
+        print(longitude1)
         theta1 = longitude1 * (2 * pi) / 360
-        theta2 = longitude2 * (2 * pi) /360
+        theta2 = longitude2 * (2 * pi) / 360
         phi1 = (90 - latitude1) * (2 * pi) / 360
         phi2 = (90 - latitude2) * (2 * pi) / 360
         distance = acos(sin(phi1) * sin(phi2) * cos(theta1 - theta2) + cos(phi1) * cos(phi2)) * R_EARTH
@@ -87,7 +102,7 @@ class AirportAtlas:
         """
         Return the distance between two airports as a float.
         """
-        distance = self.great_circle_distance(airport1[2], airport1[3], airport2[2], airport2[3])
+        distance = self.great_circle_distance(airport1.get_latitude(), airport1.get_longitude(), airport2.get_latitude(), airport2.get_longitude())
         return distance    
     
     def cost_between_airports(self, airport1, airport2):
@@ -100,7 +115,8 @@ class AirportAtlas:
         return fuel_cost
 
 def main() :
-    pass
+    a = AirportAtlas()
+    print(a.getDict())
 
 if __name__ == "main":
     main ()
