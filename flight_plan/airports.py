@@ -40,7 +40,7 @@ class AirportAtlas:
     """
     
     # Dictionary to store Airport objects
-    __airports_dict = {} 
+    _airports_dict = {} 
         
     def __init__(self, dict_of_Airports={}, csv_filename:str=None):
         """

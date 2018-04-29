@@ -81,12 +81,12 @@ class Itinerary:
         
         return list(permutations)
         
-    def cheapest_routes(self, route_cost_graph): # TODO: cost graph as param of init?
+    def cheapest_route(self, itinerary, aircraft, cost_graph): # TODO: cost graph as param of init?
         # TODO: add code to calculate cheapest route via route_cost_graph
-        routes = [] #FIXME: placeholder
-        costs = [] #FIXME: placeholder
+        route = [] #FIXME: placeholder
+        cost = 0 #FIXME: placeholder
         
-        return {'cheapest routes': cheapest_routes, 'costs': costs}
+        return route.append(cost)
     
     # TODO: shortest route method?
     

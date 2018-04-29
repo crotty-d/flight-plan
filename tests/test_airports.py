@@ -27,15 +27,10 @@ def test_construct_default_AirportAtlas():
     atlas = AirportAtlas()
     assert atlas.get_dict() == {}
 
-def test_construct_AirportAtlas_from_csv():   
-    atlas = AirportAtlas(csv_filename='airport.csv')
-    airport_dict = atlas.get_dict()
-    assert airport_dict is not {}
-    
-    return atlas
-
-# Create airport atlas from CSV for use in tests below
-csv_atlas = test_construct_AirportAtlas_from_csv()
+# Create airport atlas from CSV for use in tests below, and check dict is not empty
+csv_atlas = AirportAtlas(csv_filename='airport.csv')
+airport_dict = csv_atlas.get_dict()
+assert len(airport_dict) is not 0
     
 def test_AirportAtlas_dict():      
     assert csv_atlas.get_airport('DUB').get_city() == 'Dublin'

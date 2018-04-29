@@ -10,7 +10,7 @@ class CountryCurrencyCodes:
     """
     
     # Dictionary to store country and currency code
-    __code_dict = {}
+    _code_dict = {}
     
     def __init__(self, currency_code_dict={}, csv_filename:str=None):
         """
@@ -40,14 +40,14 @@ class CountryCurrencyCodes:
 
 class EuroRates:
     """
-    Class for storing and accessing the euro exchange rates for all currencies.
+    Class for storing and accessing the euro exchange rates for all currencies (from euro to currency).
     
     Can take country and currency code from CSV file.
     Currencies represented by their 3-character alphabetic code.
     """
     
     # Dictionary to store euro exchange rate
-    __rate_dict = {}
+    _rate_dict = {}
     
     def __init__(self, euro_rate_dict={}, csv_filename:str=None):
         """
