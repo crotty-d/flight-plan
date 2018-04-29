@@ -1,3 +1,4 @@
+import os
 import csv
 from math import pi, sin, cos, acos
 
@@ -35,17 +36,17 @@ class Aircraft:
         return self._aircraft_range 
  
    
-class AirportAtlas:
+class AircraftDictionary:
     """
-    Stores airport data in a dictionary of airport objects.
+    Stores aircraft data in a dictionary of aircraft objects.
     
     Also provides methods to perform various calculations on this data.
     """
     
     # Dictionary to store Airport objects
-    _airports_dict = {}               
+    _aircraft_dict = {}               
         
-    def __init__(self, dict_of_Airports={}, csv_filename:str=None):
+    def __init__(self, aircraft_dict={}, csv_filename:str=None):
         """
         Create instance of AirportAtlas comprising dictionary of Airport objects.
         
@@ -56,7 +57,7 @@ class AirportAtlas:
         if csv_filename is not None:
             self.load_data(csv_filename)
         else:           
-            self._airports_dict = dict_of_Airports
+            self._aircraft_dict = aircraft_dict
             
             
     def load_data(self, csv_filename:str=None):
@@ -64,19 +65,20 @@ class AirportAtlas:
         try:    
             with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
                 reader = csv.reader(f)
+                next(reader) # skip field names (first row)
                 for line in reader:
-                    self._airports_dict[line[4]] = Airport(line[4], line[2], line[3], line[6], line[7])    
+                    self._aircraft_dict[line[0]] = Aircraft(line[0], line[1], line[2], line[3], line[4])    
         except IOError as e:
             print(e)
             
     
     def get_dict(self):
-        """Return dictionary of Airport instances for all airports in atlas"""
-        return self._airports_dict
+        """Return dictionary of Airport instances for all aircraft in atlas"""
+        return self._aircraft_dict
     
     
-    def get_aircraft(self, airport_code:str):
-        """Return Airport instance specified in airport code parameter"""
-        return self._airports_dict[airport_code]
+    def get_aircraft(self, aircraft_code:str):
+        """Return Airport instance specified in aircraft code parameter"""
+        return self._aircraft_dict[aircraft_code]
     
     

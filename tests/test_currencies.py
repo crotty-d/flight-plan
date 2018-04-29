@@ -20,7 +20,10 @@ csv_codes = CountryCurrencyCodes(csv_filename='countrycurrency.csv')
 code_dict = csv_codes.get_dict()
 assert len(code_dict) is not 0
     
-def test_country_currency_get_code():   
+def test_country_currency_get_code():
+    # First entry so checks field names being skipped correctly
+    assert csv_codes.get_code('Afghanistan') == 'AFN'
+    # Check another entry
     assert csv_codes.get_code('Ireland') == 'EUR'
 
 
