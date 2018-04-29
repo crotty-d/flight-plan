@@ -18,14 +18,14 @@ class RouteCostGraph: #TODO: Distance graph with g.cirrcle and distance methods.
         self.vertices = set()
 
         # Default value for all vertices set as empty list
-        self.edges = collections.defaultdict(list) #TODO: Private edges and vertices? getters only?
-        self.weights = {}
+        self._edges = collections.defaultdict(list) #TODO: Private edges and vertices? getters only?
+        self._weights = {}
         
         #TODO: Loops to generate graph from AirportAtlas using add edge and vertex methods
         pass
  
     def add_vertex(self, airport):
-        self.vertices.add(airport.get_code())
+        self._vertices.add(airport.get_code())
         
     def cost_between_airports(self, airport1, airport2):
         """
@@ -40,14 +40,17 @@ class RouteCostGraph: #TODO: Distance graph with g.cirrcle and distance methods.
  
     def add_edge(self, from_vertex, to_vertex): # TODO: from/to_airport not vertex?
         if from_vertex != to_vertex: # no self edges
-            self.edges[to_vertex].append(from_vertex)
-            self.weights[(from_vertex, to_vertex)] = self.cost_between_airports(from_vertex, to_vertex)
-            self.weights[(to_vertex, from_vertex)] = self.cost_between_airports(to_vertex, from_vertex)
+            self._edges[to_vertex].append(from_vertex)
+            self._weights[(from_vertex, to_vertex)] = self.cost_between_airports(from_vertex, to_vertex)
+            self._weights[(to_vertex, from_vertex)] = self.cost_between_airports(to_vertex, from_vertex)
+            
+    def get_cost(self, airport1, airport2):
+        return self._weights[(airport1, airport1)]
  
     def __str__(self):
-        string = "Vertices: " + str(self.vertices) + "\n"
-        string += "Edges: " + str(self.edges) + "\n"
-        string += "Weights: " + str(self.weights)
+        string = "Vertices: " + str(self._vertices) + "\n"
+        string += "Edges: " + str(self._edges) + "\n"
+        string += "Weights: " + str(self._weights)
         return string
 
 
@@ -79,29 +82,56 @@ class Itineraries:
         return self._itinerary_list
     
     def route_permutations(self): # TODO: limit to perms starting and ending on home
-        origin = self._itinerary_list[0]
+        """
+        Get all route permutations for each item in itinerary list
+        
+        Returns list of permutation lists
+        """
         route_permutations = []
         
         for itinerary in self._itinerary_list:
-            # Get list of all permutations of intermediary airpoirts
-            permutations = itertools.permutations(self._itinerary_list[1:-2])
+            origin = self.itinerary[0]
+            aircraft = self.itinerary[-1]
+            # Get list of all permutations of intermediary airports
+            permutations = itertools.permutations(itinerary[1:-2])
             # Book-end list with origin airport to complete routes
             for p in permutations:
                 p.insert(0, origin)
                 p.append(origin)
+                p.append(aircraft)
             
             route_permutations.append(permutations)     
         
         return route_permutations
         
-    def cheapest_route(self, route_permutations, aircraft, cost_graph): # TODO: check aircraft range against distance graph
-        # TODO: add code to calculate cheapest route via cost (and distance) graphs
-        route = [] #FIXME: placeholder
-        cost = 0 #FIXME: placeholder
+    def best_routes(self, route_permutations=[], cost_graph): # TODO: check aircraft range against distance graph
+        """
+        For each itinerary, get cheapest viable route based on the possible permutations.
         
-        return route.append(cost)
+        Returns list of best routes, one for each itinerary.
+        """
+        # Go through list of permutations of for each itinerary to find best route
+        best_routes = []
+        for itinerary in route_permutations: # TODO: Maybe Numpy or Pandas here?
+            min_cost = float('+inf') # initial min value as high as possible
+            # Get cheapest route in itinerary
+            for route in itinerary:
+                cost = 0
+                # Add up cost of route legs
+                for i in range(len(route)-2): # exclude final destination and aircraft
+                    cost += cost_graph.get_cost(route[i], route[i+1])
+                if cost < min_cost:
+                    best_route = route
+                    min_cost = cost
+                    cost = 0 # reset cost counter
+            # Add cost to end of route
+            best_route.append(min_cost)
+            # Assign as best route for that itinerary
+            best_routes.append(best_route)
+        
+        return best_routes
     
-    # TODO: shortest route method?
+    # TODO: Dyjkstra or MST?
     
     
     
