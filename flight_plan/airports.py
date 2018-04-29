@@ -9,7 +9,7 @@ class Airport:
     Latitude and longitude parameters can be a float, int or string representation of a number;
     will be converted to float.
     """
-    def __init__(self, code: str, city: str, country: str, lat: float, long: float):
+    def __init__(self, code:str, city:str, country:str, lat:float, long:float):
         self._code = code
         self._city = city
         self._country = country
@@ -62,7 +62,7 @@ class AirportAtlas:
             with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
                 reader = csv.reader(f)
                 for line in reader:
-                    self._airports_dict[line[4]] = Airport(line[4], line[2], line[3], float(line[6]), float(line[7]))    
+                    self._airports_dict[line[4]] = Airport(line[4], line[2], line[3], line[6], line[7])    
         except IOError as e:
             print(e)
             
