@@ -40,7 +40,9 @@ class AirportAtlas:
     """
     
     # Dictionary to store Airport objects
-    _airports_dict = {}               
+    _airports_dict = {}
+    # List to store airport codes only (allows faster iteration through these)
+    _airport_code_list =[]         
         
     def __init__(self, dict_of_Airports={}, csv_filename:str=None):
         """
@@ -62,14 +64,19 @@ class AirportAtlas:
             with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
                 reader = csv.reader(f)
                 for line in reader:
+                    self._airport_code_list.append(line[4])
                     self._airports_dict[line[4]] = Airport(line[4], line[2], line[3], line[6], line[7])    
         except IOError as e:
             print(e)
             
     
     def get_dict(self):
-        """Return dictionary of Airport instances for all airports in atlas"""
+        """Return dictionary of Airport objects for all airports in atlas"""
         return self._airports_dict
+    
+    def get_code_list(self):
+        """Return list of airport codes for all airports in atlas"""
+        return self._airport_code_list
     
     
     def get_airport(self, airport_code:str):

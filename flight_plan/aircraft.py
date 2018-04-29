@@ -1,6 +1,5 @@
 import os
 import csv
-from math import pi, sin, cos, acos
 
 class Aircraft:
     """

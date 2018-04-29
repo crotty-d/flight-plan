@@ -5,9 +5,10 @@ import itertools
 
 from flight_plan.airports import Airport, AirportAtlas
 from flight_plan.currencies import CountryCurrencyCodes, EuroRates
+from flight_plan.aircraft import AircraftDictionary
 
   
-class RouteCostGraph: #TODO: Distance graph with g.cirrcle and distance methods. RCG inherits from this adding cost method and modifying weights
+class RouteCostGraph: #TODO: RouteGraph as includes distance
     """ 
     Mixed multigraph of airports for calculating different itinerary costs.
     
@@ -16,7 +17,7 @@ class RouteCostGraph: #TODO: Distance graph with g.cirrcle and distance methods.
     """
 
     def __init__(self): #TODO: take in dict or list?
-        self.nodes = set()
+        self.nodes = [] # list used over set as faster to iterate through when creating edges from nodes
 
         # Each edge initialised as empty list
         self._triple_edges = collections.defaultdict(list) #TODO: Private edges and nodes? getters only?
@@ -24,8 +25,6 @@ class RouteCostGraph: #TODO: Distance graph with g.cirrcle and distance methods.
         self._distances = {}
         self._costs = {}
         
-        #TODO: Loops to generate graph from AirportAtlas using add edge and node methods
-        pass
  
     def add_node(self, airport):
         self._nodes.add(airport.get_code())
@@ -39,23 +38,31 @@ class RouteCostGraph: #TODO: Distance graph with g.cirrcle and distance methods.
         exch_rate = EuroRates.get_rate(currency_code)
         return exch_rate
  
+ 
     def add_edge(self, from_node, to_node): # TODO: from/to_airport not node?
         
         if from_node != to_node: # no self edges
             self._triple_edges[to_node].append(from_node)
-            # distance weight
+            # Distance weight
             distance = AirportAtlas.distance_between_airports(from_node, to_node)
             self._distances[(from_node, to_node)] = self._distances[(to_node, from_node)] = distance
             # Cost weights
             self._costs[(from_node, to_node)] = self.airport_euro_rate(from_node) * distance
             self._costs[(to_node, from_node)] = self.airport_euro_rate(from_node) * distance
+    
             
     def bulid_from_atlas(self, airport_atlas):
         """Add nodes and edges based on entire contents of AirportAtlas object"""
-        # Dictionary containing airports, from which to extract node and weight values 
-        atlas_dict = airport_atlas.get_dict()
-        for airport_code in atlas_dict:
+        # List of airport codes 
+        code_list = airport_atlas.get_list()
+        # Add nodes
+        for airport_code in code_list:
             self.add_node(airport_code)
+        # Add edges between all (unordered) pairs of nodes (airport codes)
+        all_node_pairs = list(itertools.combinations(code_list, 2))
+        for pair in all_node_pairs:
+            self.add_edge(*pair)
+            
     
     def get_distance(self, airport1, airport2):
         return self._distances[(airport1, airport1)]
@@ -107,43 +114,61 @@ class Itineraries:
         
         for itinerary in self._itinerary_list:
             origin = self.itinerary[0]
-            aircraft = self.itinerary[-1]
-            # Get list of all permutations of intermediary airports
-            permutations = itertools.permutations(itinerary[1:-2])
+            aircraft_code = self.itinerary[-1]
+            # Get list of all permutations (tuples) of intermediary airports
+            permutations = list(itertools.permutations(itinerary[1:-2]))
             # Book-end list with origin airport to complete routes
             for p in permutations:
                 p.insert(0, origin)
                 p.append(origin)
-                p.append(aircraft)
+                p.append(aircraft_code)
             
             route_permutations.append(permutations)     
         
         return route_permutations
         
-    def best_routes(self, route_permutations, cost_graph): # TODO: check aircraft range against distance graph
+    def best_routes(self, route_permutations, route_graph, aircraft_dict): # TODO: check aircraft range against distance graph
         """
         For each itinerary, get cheapest viable route based on the possible permutations.
         
         Returns list of best routes, one for each itinerary.
-        """
+        """        
         # Go through list of permutations of for each itinerary to find best route
         best_routes = []
         for itinerary in route_permutations: # TODO: Maybe Numpy or Pandas here?
-            min_cost = float('+inf') # initial min value as high as possible
+            # Aircraft range (limits possible routes)
+            aircraft_code = self.itinerary[-1]
+            aircraft_range = aircraft_dict.get_aircraft(aircraft_code).get_range()
+            # Initialise variables; min value as high as possible
+            infinity = float('+inf')
+            min_route_cost = infinity
             # Get cheapest route in itinerary
             for route in itinerary:
-                cost = 0
+                cost_route = 0
+                route_not_viable = False
                 # Add up cost of route legs
-                for i in range(len(route)-2): # exclude final destination and aircraft
-                    cost += cost_graph.get_cost(route[i], route[i+1])
-                if cost < min_cost:
+                for i in range(len(route)-2): # exclude final destination and aircraft code
+                    distance_leg = route_graph.get_cost(route[i], route[i+1])
+                    if distance_leg > aircraft_range:
+                        route_not_viable = True
+                        break
+                    else:
+                        cost_route += route_graph.get_cost(route[i], route[i+1])
+                if route_not_viable == False and cost_route < min_route_cost:
                     best_route = route
-                    min_cost = cost
-                    cost = 0 # reset cost counter
-            # Add cost to end of route
-            best_route.append(min_cost)
-            # Assign as best route for that itinerary
-            best_routes.append(best_route)
+                    min_cost = cost_route
+                    cost_route = 0 # reset cost counter
+            # If viable route found, ...
+            if min_route_cost != infinity:
+                # ...assign as best route for that itinerary...
+                best_routes.append(best_route)
+                # ...and add cost to end of route
+                best_route.append(min_cost)
+            else:
+                # ...use input itinerary and...
+                best_routes.append(best_route)
+                # ...add 'No viable route' to end
+                best_route.append('No viable route')
         
         return best_routes
     

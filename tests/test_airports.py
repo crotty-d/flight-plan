@@ -36,6 +36,10 @@ def test_AirportAtlas_dict():
     assert csv_atlas.get_airport('DUB').get_city() == 'Dublin'
     assert csv_atlas.get_airport('JFK').get_city() == 'New York'
     
+def test_AirportAtlas_list():
+    code_list = csv_atlas.get_code_list()
+    assert code_list[0] == 'HEA'
+    
 def test_distance():
     airport1 = csv_atlas.get_airport('DUB')
     airport2 = csv_atlas.get_airport('JFK')

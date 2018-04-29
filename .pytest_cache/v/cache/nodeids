@@ -2,11 +2,6 @@
   "tests/test_airports.py::test_Aiport",
   "tests/test_airports.py::test_construct_default_AirportAtlas",
   "tests/test_airports.py::test_AirportAtlas_dict",
-  "tests/test_airports.py::test_distance",
-  "tests/test_currencies.py::test_construct_default_country_currency_codes",
-  "tests/test_currencies.py::test_country_currency_get_code",
-  "tests/test_currencies.py::test_construct_default_euro_rates",
-  "tests/test_currencies.py::test_euro_rates_get_code",
-  "tests/test_input.py::test_input_data_exsists",
-  "tests/test_input.py::test_itinerary_input_file_exsists"
+  "tests/test_airports.py::test_AirportAtlas_list",
+  "tests/test_airports.py::test_distance"
 ]
