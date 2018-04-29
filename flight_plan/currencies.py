@@ -19,20 +19,26 @@ class CountryCurrencyCodes:
         Default is empty dictionary.
         Set csv_filename parameter to construct dictionary from the CSV
         """
+        if csv_filename is not None:
+            self.load_data(csv_filename)
+        else:           
+            self._code_dict = currency_code_dict
+            
+            
+    def load_data(self, csv_filename):
         try:
-            if csv_filename is not None: #TODO: handle missing
-                with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
-                    reader = csv.reader(f)
-                    next(reader) # skip field names (first row)
-                    for line in reader:
-                        self._code_dict[line[0]] = line[14]
-            else:           
-                self._code_dict = currency_code_dict
+            with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
+                reader = csv.reader(f)
+                next(reader) # skip field names (first row)
+                for line in reader:
+                    self._code_dict[line[0]] = line[14]
         except IOError as e:
             print(e)
+                      
         
     def get_dict(self):
         return self._code_dict
+    
     
     def get_code(self, country:str):
         return self._code_dict[country]
@@ -56,19 +62,25 @@ class EuroRates:
         Default is empty dictionary.
         Set csv_filename parameter to construct dictionary from the CSV
         """
+        
+        if csv_filename is not None: #TODO: handle missing
+            self.load_data(csv_filename)
+        else:           
+            self._rate_dict = euro_rate_dict
+            
+            
+    def load_data(self, csv_filename):
         try:
-            if csv_filename is not None: #TODO: handle missing
-                with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
-                    reader = csv.reader(f)
-                    for line in reader:
-                        self._rate_dict[line[1]] = float(line[2])
-            else:           
-                self._rate_dict = euro_rate_dict
+            with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
+                reader = csv.reader(f)
+                for line in reader:
+                    self._rate_dict[line[1]] = float(line[2])
         except IOError as e:
-            print(e)
+            print(e)    
             
     def get_dict(self):
         return self._rate_dict
+    
         
     def get_rate(self, currency_code:str):
         return self._rate_dict[currency_code]

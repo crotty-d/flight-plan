@@ -9,46 +9,62 @@ from flight_plan.currencies import CountryCurrencyCodes, EuroRates
   
 class RouteCostGraph: #TODO: Distance graph with g.cirrcle and distance methods. RCG inherits from this adding cost method and modifying weights
     """ 
-    Undirected graph of airports for calculating different itinerary costs.
+    Mixed multigraph of airports for calculating different itinerary costs.
     
-    Weighted by fuel cost (inter-airport distance * Euro conversion rate).
+    Three edges connect each node (airport code): one undirected edge weighted by great-circle distance,
+    and two oppositely directed edges weighted by fuel cost (inter-airport distance * Euro conversion rate).
     """
 
-    def __init__(self, airport_atlas): #TODO: take in dict or list?
-        self.vertices = set()
+    def __init__(self): #TODO: take in dict or list?
+        self.nodes = set()
 
-        # Default value for all vertices set as empty list
-        self._edges = collections.defaultdict(list) #TODO: Private edges and vertices? getters only?
-        self._weights = {}
+        # Each edge initialised as empty list
+        self._triple_edges = collections.defaultdict(list) #TODO: Private edges and nodes? getters only?
+        # Weights initialised as as empty dictionaries
+        self._distances = {}
+        self._costs = {}
         
-        #TODO: Loops to generate graph from AirportAtlas using add edge and vertex methods
+        #TODO: Loops to generate graph from AirportAtlas using add edge and node methods
         pass
  
-    def add_vertex(self, airport):
-        self._vertices.add(airport.get_code())
+    def add_node(self, airport):
+        self._nodes.add(airport.get_code())
         
-    def cost_between_airports(self, airport1, airport2):
+    def airport_euro_rate(self, airport):
         """
         Return the (fuel) cost between two airports as a float.
         """
-        distance = AirportAtlas.distance_between_airports(airport1, airport2)
-        origin_country = airport1.get_country()
-        origin_currency_code = CountryCurrencyCodes.get_code(origin_country)
-        origin_exch_rate = EuroRates.get_rate(origin_currency_code)
-        fuel_cost = distance * origin_exch_rate
-        return fuel_cost
+        country = airport.get_country()
+        currency_code = CountryCurrencyCodes.get_code(country)
+        exch_rate = EuroRates.get_rate(currency_code)
+        return exch_rate
  
-    def add_edge(self, from_vertex, to_vertex): # TODO: from/to_airport not vertex?
-        if from_vertex != to_vertex: # no self edges
-            self._edges[to_vertex].append(from_vertex)
-            self._weights[(from_vertex, to_vertex)] = self.cost_between_airports(from_vertex, to_vertex)
-            self._weights[(to_vertex, from_vertex)] = self.cost_between_airports(to_vertex, from_vertex)
+    def add_edge(self, from_node, to_node): # TODO: from/to_airport not node?
+        
+        if from_node != to_node: # no self edges
+            self._triple_edges[to_node].append(from_node)
+            # distance weight
+            distance = AirportAtlas.distance_between_airports(from_node, to_node)
+            self._distances[(from_node, to_node)] = self._distances[(to_node, from_node)] = distance
+            # Cost weights
+            self._costs[(from_node, to_node)] = self.airport_euro_rate(from_node) * distance
+            self._costs[(to_node, from_node)] = self.airport_euro_rate(from_node) * distance
             
+    def bulid_from_atlas(self, airport_atlas):
+        """Add nodes and edges based on entire contents of AirportAtlas object"""
+        # Dictionary containing airports, from which to extract node and weight values 
+        atlas_dict = airport_atlas.get_dict()
+        for airport_code in atlas_dict:
+            self.add_node(airport_code)
+    
+    def get_distance(self, airport1, airport2):
+        return self._distances[(airport1, airport1)]
+    
     def get_cost(self, airport1, airport2):
-        return self._weights[(airport1, airport1)]
+        return self._costs[(airport1, airport1)]
  
     def __str__(self):
-        string = "Vertices: " + str(self._vertices) + "\n"
+        string = "Vertices: " + str(self._nodes) + "\n"
         string += "Edges: " + str(self._edges) + "\n"
         string += "Weights: " + str(self._weights)
         return string
@@ -104,7 +120,7 @@ class Itineraries:
         
         return route_permutations
         
-    def best_routes(self, route_permutations=[], cost_graph): # TODO: check aircraft range against distance graph
+    def best_routes(self, route_permutations, cost_graph): # TODO: check aircraft range against distance graph
         """
         For each itinerary, get cheapest viable route based on the possible permutations.
         

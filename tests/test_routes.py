@@ -4,7 +4,7 @@
 """Tests for routes module."""
 
 import pytest
-import syss
+import sys
 sys.path.append('.')
 
 from flight_plan.airports import AirportAtlas
