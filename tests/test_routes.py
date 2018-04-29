@@ -8,7 +8,7 @@ import sys
 sys.path.append('.')
 
 from flight_plan.airports import AirportAtlas
-from flight_plan.routes import RouteCostGraph, Itinerary
+from flight_plan.routes import RouteCostGraph, Itineraries
 
   
 # airport_atlas = AirportAtlas.load_data('input/airports.csv')

@@ -7,25 +7,25 @@ from flight_plan.airports import Airport, AirportAtlas
 from flight_plan.currencies import CountryCurrencyCodes, EuroRates
 
   
-class RouteCostGraph:
+class RouteCostGraph: #TODO: Distance graph with g.cirrcle and distance methods. RCG inherits from this adding cost method and modifying weights
     """ 
     Undirected graph of airports for calculating different itinerary costs.
     
     Weighted by fuel cost (inter-airport distance * Euro conversion rate).
     """
 
-    def __init__(self, airport_atlas): #TODO: take in dict or list
+    def __init__(self, airport_atlas): #TODO: take in dict or list?
         self.vertices = set()
 
         # Default value for all vertices set as empty list
-        self.edges = collections.defaultdict(list)
+        self.edges = collections.defaultdict(list) #TODO: Private edges and vertices? getters only?
         self.weights = {}
         
         #TODO: Loops to generate graph from AirportAtlas using add edge and vertex methods
         pass
  
     def add_vertex(self, airport):
-        self.vertices.add(airport)
+        self.vertices.add(airport.get_code())
         
     def cost_between_airports(self, airport1, airport2):
         """
@@ -51,38 +51,51 @@ class RouteCostGraph:
         return string
 
 
-class Itinerary:
+class Itineraries:
     """...""" #FIXME
     
-    __airport_list = []
+    _itinerary_list = []
 
-    def __init__(self, airport_list=[], csv_filename=None):
+    def __init__(self, itinerary_list=[], csv_filepath=None):
         """
-        Create Itinerary object.
+        Create Itineraries object.
         
         Default is empty list.
         Dictionary values must be Airport objects.
         Set csv_filename parameter to construct dictionary from the csv
         """
         
-        if csv_filename is not None:
-            with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
+        if csv_filepath is not None:
+            with open(csv_filepath) as f: #FIXME: relative path
                 reader = csv.reader(f)
                 row_idx = 0
                 for line in reader:
-                    self._airport_list[row_idx] = [field for field in line]
+                    self._itinerary_list[row_idx] = [field for field in line]
                     row_idx += 1
         else:
-            self._airport_list = airport_list
+            self._itinerary_list = itinerary_list
         
-    def all_permutations(self): # TODO: limit to perms starting and ending on home
+    def get_itinerary_list(self):
+        return self._itinerary_list
+    
+    def route_permutations(self): # TODO: limit to perms starting and ending on home
+        origin = self._itinerary_list[0]
+        route_permutations = []
         
-        permutations = itertools.permutations(self.airport_list[1:-1])
+        for itinerary in self._itinerary_list:
+            # Get list of all permutations of intermediary airpoirts
+            permutations = itertools.permutations(self._itinerary_list[1:-2])
+            # Book-end list with origin airport to complete routes
+            for p in permutations:
+                p.insert(0, origin)
+                p.append(origin)
+            
+            route_permutations.append(permutations)     
         
-        return list(permutations)
+        return route_permutations
         
-    def cheapest_route(self, itinerary, aircraft, cost_graph): # TODO: cost graph as param of init?
-        # TODO: add code to calculate cheapest route via route_cost_graph
+    def cheapest_route(self, route_permutations, aircraft, cost_graph): # TODO: check aircraft range against distance graph
+        # TODO: add code to calculate cheapest route via cost (and distance) graphs
         route = [] #FIXME: placeholder
         cost = 0 #FIXME: placeholder
         
