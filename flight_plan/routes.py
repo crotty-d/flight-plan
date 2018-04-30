@@ -8,7 +8,7 @@ from flight_plan.currencies import CountryCurrencyCodes, EuroRates
 from flight_plan.aircraft import AircraftDictionary
 
   
-class RouteCostGraph: #TODO: RouteGraph as includes distance
+class RouteGraph:
     """ 
     Mixed multigraph of airports for calculating different itinerary costs.
     
@@ -16,8 +16,8 @@ class RouteCostGraph: #TODO: RouteGraph as includes distance
     and two oppositely directed edges weighted by fuel cost (inter-airport distance * Euro conversion rate).
     """
 
-    def __init__(self): #TODO: take in dict or list?
-        self.nodes = [] # list used over set as faster to iterate through when creating edges from nodes
+    def __init__(self, itinerary, airport_atlas):
+        self._nodes = set()
 
         # Each edge initialised as empty list
         self._triple_edges = collections.defaultdict(list) #TODO: Private edges and nodes? getters only?
@@ -25,26 +25,29 @@ class RouteCostGraph: #TODO: RouteGraph as includes distance
         self._distances = {}
         self._costs = {}
         
+        
+        
+        
+        
  
-    def add_node(self, airport):
-        self._nodes.add(airport.get_code())
+    def add_node(self, airport): #FIXME: use objects instead of codes (other functions too)
+        """Add node (airport) to graph."""
+        self._nodes.add(airport)
         
     def airport_euro_rate(self, airport):
         """
-        Return the (fuel) cost between two airports as a float.
+        Return the euro exchange rate at the given airport
         """
-        country = airport.get_country()
-        currency_code = CountryCurrencyCodes.get_code(country)
-        exch_rate = EuroRates.get_rate(currency_code)
+        exch_rate = airport_atlas.get_euro_rate(airport)
         return exch_rate
  
  
-    def add_edge(self, from_node, to_node): # TODO: from/to_airport not node?
-        
+    def add_edge(self, from_node, to_node, atlas=AirportAtlas()): # TODO: from/to_airport not node?
+        """Add edge between two nodes."""
         if from_node != to_node: # no self edges
             self._triple_edges[to_node].append(from_node)
             # Distance weight
-            distance = AirportAtlas.distance_between_airports(from_node, to_node)
+            distance = atlas.distance_between_airports(from_node, to_node)
             self._distances[(from_node, to_node)] = self._distances[(to_node, from_node)] = distance
             # Cost weights
             self._costs[(from_node, to_node)] = self.airport_euro_rate(from_node) * distance
@@ -54,20 +57,23 @@ class RouteCostGraph: #TODO: RouteGraph as includes distance
     def bulid_from_atlas(self, airport_atlas):
         """Add nodes and edges based on entire contents of AirportAtlas object"""
         # List of airport codes 
-        code_list = airport_atlas.get_list()
+        code_list = airport_atlas.get_code_list()
         # Add nodes
         for airport_code in code_list:
             self.add_node(airport_code)
         # Add edges between all (unordered) pairs of nodes (airport codes)
         all_node_pairs = list(itertools.combinations(code_list, 2))
+#         print(all_node_pairs)
         for pair in all_node_pairs:
-            self.add_edge(*pair)
+            self.add_edge(*pair, atlas=airport_atlas)
             
     
     def get_distance(self, airport1, airport2):
+        """Return the distance between two airports as a float."""
         return self._distances[(airport1, airport1)]
     
     def get_cost(self, airport1, airport2):
+        """Return the (fuel) cost between two airports as a float."""
         return self._costs[(airport1, airport1)]
  
     def __str__(self):
@@ -127,7 +133,7 @@ class Itineraries:
         
         return route_permutations
         
-    def best_routes(self, route_permutations, route_graph, aircraft_dict): # TODO: check aircraft range against distance graph
+    def best_routes(self, route_permutations, aircraft_dict): # TODO: check aircraft range against distance graph
         """
         For each itinerary, get cheapest viable route based on the possible permutations.
         

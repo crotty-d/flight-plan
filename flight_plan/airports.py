@@ -34,7 +34,7 @@ class Airport:
    
 class AirportAtlas:
     """
-    Stores airport data in a dictionary of airport objects.
+    Stores airport data from CSV file in a dictionary of airport objects.
     
     Also provides methods to perform various calculations on this data.
     """
@@ -42,9 +42,9 @@ class AirportAtlas:
     # Dictionary to store Airport objects
     _airports_dict = {}
     # List to store airport codes only (allows faster iteration through these)
-    _airport_code_list =[]         
+    _airport_code_list =[] #FIXME: Still need?    
         
-    def __init__(self, dict_of_Airports={}, csv_filename:str=None):
+    def __init__(self, country_curr_coddes, euro_rates, csv_filename:str=None):
         """
         Create instance of AirportAtlas comprising dictionary of Airport objects.
         
@@ -55,7 +55,7 @@ class AirportAtlas:
         if csv_filename is not None:
             self.load_data(csv_filename)
         else:           
-            self._airports_dict = dict_of_Airports
+            self._airports_dict = {}
             
             
     def load_data(self, csv_filename:str=None):
@@ -99,13 +99,24 @@ class AirportAtlas:
         return distance  
       
     
-    def distance_between_airports(self, airport1, airport2):
+    def distance_between_airports(self, airport_code1, airport_code2):
         """
         Return the distance between two airports as a float.
         """
+        airport1 = self._airports_dict[airport_code1]
+        airport2 = self._airports_dict[airport_code2]
         coordinates = (airport1.get_latitude(), airport1.get_longitude(), airport2.get_latitude(), airport2.get_longitude())
         distance = self.great_circle_distance(*coordinates)
         return distance    
     
+    
+    def airport_euro_rate(self, airport):
+        """
+        Return the euro exchange rate at the given airport
+        """
+        country = airport.get_country()
+        currency_code = CountryCurrencyCodes.get_code(country)
+        exch_rate = EuroRates.get_rate(currency_code)
+        return exch_rate
 
 

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from flight_plan.airports import Airport, AirportAtlas
+from flight_plan.airports import AirportAtlas
+from flight_plan.aircraft import AircraftDictionary
 from flight_plan.currencies import CountryCurrencyCodes, EuroRates
 from flight_plan.routes import RouteCostGraph, Itineraries
-from flight_plan.aircraft import AircraftDictionary
 
 
 """Main module"""
@@ -12,7 +12,7 @@ from flight_plan.aircraft import AircraftDictionary
 # Store airport data in AirportAtlas object
 atlas = AirportAtlas(csv_filename='airport.csv')
 # Store aircraft data in AircraftDictionary object
-AircraftDictionary(csv_filename='aircraft.csv')
+aircraft_dict = AircraftDictionary(csv_filename='aircraft.csv')
 # Store countries' currency codes CountryCurrencyCodes object
 currency_codes = CountryCurrencyCodes(csv_filename='countrycurrency.csv')
 # Store euro exchange rates for all currency codes (from euro to currency) in EuroRate object
