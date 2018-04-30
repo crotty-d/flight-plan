@@ -12,22 +12,20 @@ from flight_plan.aircraft import AircraftDictionary
 from flight_plan.currencies import CountryCurrencyCodes, EuroRates
 from flight_plan.routes import RouteGraph, Itineraries
 
-
-# Store airport data in AirportAtlas object
-atlas = AirportAtlas(csv_filename='airport.csv')
-# Store aircraft data in AircraftDictionary object
-aircraft_dict = AircraftDictionary(csv_filename='aircraft.csv')
-# Store countries' currency codes CountryCurrencyCodes object
+# -- Data --
+# Currency data
 currency_codes = CountryCurrencyCodes(csv_filename='countrycurrency.csv')
-# Store euro exchange rates for all currency codes (from euro to currency) in EuroRate object
 euro_rates = EuroRates(csv_filename='currencyrates.csv')
+# Airport data
+atlas = AirportAtlas('airport.csv', currency_codes, euro_rates)
+# Aircraft data
+aircraft_dict = AircraftDictionary(csv_filename='aircraft.csv')
+# Testroutes
+csv_filepath = '/home/d/Git/flight_plan/flight_plan/input/input.csv'
+
+#-- Itinerary tests --
+itins = Itineraries(csv_filepath, atlas, aircraft_dict)
+for route in itins.best_routes():
+    print(route)
 
 
-itins = Itineraries('')
-
-
-# airport_atlas = AirportAtlas.load_data('input/airports.csv')
-# 
-# g = RouteCostGraph(airport_atlas)
-# 
-# cheapest_route, route_cost = Itinerary.cheapest_route(g)

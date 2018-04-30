@@ -36,7 +36,7 @@ csv_atlas = AirportAtlas('airport.csv', currency_codes, euro_rates)
 airport_dict = csv_atlas.get_dict()
 assert len(airport_dict) is not 0
     
-def test_get_airport():      
+def test_get_airport_city():      
     assert csv_atlas.get_airport('DUB').get_city() == 'Dublin'
     assert csv_atlas.get_airport('JFK').get_city() == 'New York'
     
@@ -45,9 +45,7 @@ def test_get_airport():
 #     assert code_list[0] == 'HEA'
     
 def test_distance():
-    airport1 = csv_atlas.get_airport('DUB')
-    airport2 = csv_atlas.get_airport('JFK')
-    distance = csv_atlas.distance_between_airports(airport1, airport2)
+    distance = csv_atlas.distance_between_airports('DUB', 'JFK')
     
     assert int(round(distance, 0)) == 5103
     

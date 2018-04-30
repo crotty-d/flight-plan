@@ -73,6 +73,7 @@ class AirportAtlas:
         """Return dictionary of Airport objects for all airports in atlas"""
         return self._airports_dict
     
+    
     def get_code_list(self):
         """Return list of airport codes for all airports in atlas"""
         return self._airport_code_list
@@ -83,7 +84,7 @@ class AirportAtlas:
         return self._airports_dict[airport_code]
     
     
-    def great_circle_distance(self, latitude1, longitude1, latitude2, longitude2):
+    def great_circle_distance(self, latitude1, longitude1, latitude2, longitude2): #TODO: check formula correct
         """
         Return the distance between two sets of geographical coordinates as a float.
         
@@ -98,10 +99,12 @@ class AirportAtlas:
         return distance  
       
     
-    def distance_between_airports(self, airport1, airport2):
+    def distance_between_airports(self, airport_code1, airport_code2):
         """
         Return the distance between two airports as a float.
         """
+        airport1 = self._airports_dict[airport_code1]
+        airport2 = self._airports_dict[airport_code2]
         coordinates = (airport1.get_latitude(), airport1.get_longitude(), airport2.get_latitude(), airport2.get_longitude())
         distance = self.great_circle_distance(*coordinates)
         return distance    
