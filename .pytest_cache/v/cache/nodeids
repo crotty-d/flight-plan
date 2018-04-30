@@ -1,4 +1,5 @@
 [
-  "tests/test_routes.py::test_best_routes",
-  "tests/test_routes.py::test_to_csv"
+  "tests/test_aircraft.py::test_Aiport",
+  "tests/test_aircraft.py::test_construct_default_AircraftDictionary",
+  "tests/test_aircraft.py::test_AircraftDictionary_range"
 ]

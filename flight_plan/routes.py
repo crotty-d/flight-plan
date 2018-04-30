@@ -3,6 +3,7 @@
 import csv
 import collections
 import itertools
+import os
 
   
 class RouteGraph:
@@ -56,7 +57,7 @@ class RouteGraph:
         return exch_rate
  
  
-    def add_edge(self, from_node, to_node): # TODO: from/to_airport not node?
+    def add_edge(self, from_node, to_node): 
         """Add edge between two nodes."""
         if from_node != to_node: # no self edges
             self._edges[to_node].append(from_node)
@@ -88,12 +89,20 @@ class RouteGraph:
 
 
 class Itineraries:
-    """...""" #FIXME
+    """
+    Stores list of itineraries and aircraft.
+    
+    Provides methods to calculate and  best routes using the given aircraft.
+    """ 
     
     _itinerary_list = []
     _best_routes = []
+    # Default directories for input data
+    _default_dir = os.path.dirname(__file__)
+    _default_out_path = os.path.join(_default_dir, 'output', 'bestroutes.csv')
+    
 
-    def __init__(self, itineraries_csv_filepath, airport_atlas, aircraft_dict, outut_csv_path='/home/d/Git/flight_plan/flight_plan/output/bestroutes.csv'):
+    def __init__(self, itineraries_csv_filepath, airport_atlas, aircraft_dict, output_csv_path=_default_out_path):
         """
         Create Itineraries object.
         
@@ -104,7 +113,7 @@ class Itineraries:
         self.load_data(itineraries_csv_filepath)
         self._airport_atlas = airport_atlas
         self._aircraft_dict = aircraft_dict
-        self._outut_csv_path = outut_csv_path
+        self._outut_csv_path = output_csv_path
         self._best_routes = []
     
     
@@ -122,7 +131,7 @@ class Itineraries:
         return self._itinerary_list
     
     
-    def route_permutations(self): # TODO: limit to perms starting and ending on home
+    def route_permutations(self):
         """
         Get all route permutations for *each* item in itinerary list.
         

@@ -43,26 +43,30 @@ class AircraftDictionary:
     """
     
     # Dictionary to store Airport objects
-    _aircraft_dict = {}               
+    _aircraft_dict = {}
+    # Default directories for input data
+    _default_dir = os.path.dirname(__file__)
+    _default_input_dir = os.path.join(_default_dir, 'input')
+           
         
-    def __init__(self, aircraft_dict={}, csv_filename:str=None):
+    def __init__(self, aircraft_dict={}, csv_filename:str=None, input_dir=_default_input_dir):
         """
         Create instance of AirportAtlas comprising dictionary of Airport objects.
         
         Default is empty dictionary.
         Dictionary values must be Airport objects.
-        Set csv_filename parameter to construct dictionary from the csv
-        """
+        Set csv_filename parameter to construct dictionary from the CSV
+        """        
         if csv_filename is not None:
-            self.load_data(csv_filename)
+            self.load_data(csv_filename, input_dir)
         else:           
             self._aircraft_dict = aircraft_dict
             
             
-    def load_data(self, csv_filename:str=None):
+    def load_data(self, csv_filename, input_dir):
         """Load data from CSV file"""
         try:    
-            with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
+            with open(os.path.join(input_dir, csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
                 reader = csv.reader(f)
                 next(reader) # skip field names (first row)
                 for line in reader:

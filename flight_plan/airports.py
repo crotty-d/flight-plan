@@ -43,8 +43,11 @@ class AirportAtlas:
     
     # Dictionary to store Airport objects
     _airports_dict = {}
+    # Default directories for input data
+    _default_dir = os.path.dirname(__file__)
+    _default_input_dir = os.path.join(_default_dir, 'input')
         
-    def __init__(self, csv_filename:str, country_curr_codes, euro_rates):
+    def __init__(self, csv_filename:str, country_curr_codes, euro_rates, input_dir=_default_input_dir):
         """
         Create instance of AirportAtlas comprising dictionary of Airport objects.
         
@@ -52,15 +55,15 @@ class AirportAtlas:
         Dictionary values must be Airport objects.
         Set csv_filename parameter to construct dictionary from the csv
         """
-        self.load_data(csv_filename)
+        self.load_data(csv_filename, input_dir)
         self._country_curr_codes = country_curr_codes
         self._euro_rates = euro_rates
         
             
-    def load_data(self, csv_filename:str=None):
+    def load_data(self, csv_filename:str, input_dir):
         """Load data from CSV file"""
         try:    
-            with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
+            with open(os.path.join(input_dir, csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
                 reader = csv.reader(f)
                 for line in reader:
                     self._airports_dict[line[4]] = Airport(line[4], line[2], line[3], line[6], line[7])    
@@ -83,7 +86,7 @@ class AirportAtlas:
         return self._airports_dict[airport_code]
     
     
-    def great_circle_distance(self, latitude1, longitude1, latitude2, longitude2): #TODO: check formula correct
+    def great_circle_distance(self, latitude1, longitude1, latitude2, longitude2):
         """
         Return the distance between two sets of geographical coordinates as a float.
         

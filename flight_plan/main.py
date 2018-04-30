@@ -28,11 +28,11 @@ input_filepath = input('Please enter the full path for the itinerary CSV file to
 output_filepath = input('Please enter the path of the directory where you would like to save the calculated best routes (bestroutes.csv): ')
 
 # Get best routes
-if output_filepath is not None:
-    itins = Itineraries(input_filepath, atlas, aircraft_dict, outut_csv_path=output_filepath)
+if output_filepath != '':
+    itins = Itineraries(input_filepath, atlas, aircraft_dict, output_csv_path=output_filepath)
 else:
     itins = Itineraries(input_filepath, atlas, aircraft_dict) # use default path (output folder)
-
+# Run best routes calculations
 itins.best_routes()
 
 # Save output to CSV
