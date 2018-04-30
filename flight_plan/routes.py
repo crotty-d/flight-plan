@@ -41,6 +41,10 @@ class RouteGraph:
         all_node_pairs = list(itertools.combinations(self._nodes, 2))
         for pair in all_node_pairs:
             self.add_edge(*pair)
+            
+#         for node_i in self._nodes:
+#             for node_j in self._nodes:
+#                 self.add_edge(node_j, node_i)
         
  
     def add_node(self, airport_code):
@@ -83,7 +87,9 @@ class RouteGraph:
     def __str__(self):
         string = "Vertices: " + str(self._nodes) + "\n"
         string += "Edges: " + str(self._edges) + "\n"
-        string += "Weights: " + str(self._weights)
+        string += "Distances: " + str(self._distances) + "\n"
+        string += "Costs: " + str(self._costs) + "\n"
+
         return string
 
 
@@ -128,16 +134,17 @@ class Itineraries:
         permutations_for_itineraries = []
         
         for itinerary in self._itinerary_list:
+            airport_codes = itinerary[0:-1]
             origin = itinerary[0]
             aircraft_code = itinerary[-1]
-            # Get list of all permutations of intermediary airports
-            permutations = list(map(list, itertools.permutations(itinerary[1:-2]))) # list and map function to get list of lists
+            # Get list of all permutations of intermediary airports (exclude origin)
+            permutations = list(map(list, itertools.permutations(airport_codes[1:]))) # list and map function to get list of lists
             # Book-end each route list with origin airport to complete routes
             for p in permutations:
                 p.insert(0, origin)
                 p.append(origin)
 
-            permutations_for_itineraries.append({'itinerary': itinerary, 'aircraft': aircraft_code, 'permutations': permutations})     
+            permutations_for_itineraries.append({'airport_codes': airport_codes, 'aircraft': aircraft_code, 'permutations': permutations})     
         
         return permutations_for_itineraries # list of dictionaries
     
@@ -154,11 +161,14 @@ class Itineraries:
         best_routes = []
         for route_permutations in permutations_for_itineraries:
             # Create route graph for itinerary
-            itinerary = route_permutations['itinerary']
-            route_graph = RouteGraph(itinerary[0:-1], self._airport_atlas) # list slice to avoid repeated home airport
+            itinerary = route_permutations['airport_codes']
+            print(itinerary)
+            route_graph = RouteGraph(itinerary, self._airport_atlas) # list slice to avoid repeated home airport
+            print(route_graph.__str__())
             # Aircraft range (limits possible routes)
             aircraft_code = route_permutations['aircraft']
             aircraft_range = self._aircraft_dict.get_aircraft(aircraft_code).get_range()
+            print(aircraft_range)
             # Initialise variables; min value as high as possible
             infinity = float('+inf')
             min_route_cost = infinity
@@ -171,24 +181,28 @@ class Itineraries:
                 # Add up cost of route legs
                 for i in range(len(route)-1): # exclude final destination
                     distance_leg = route_graph.get_cost(route[i], route[i+1])
+                    print(distance_leg)
                     if distance_leg > aircraft_range:
-                        route_not_viable = True
-                        break
+#                         route_not_viable = True
+#                         break
+                        pass
                     else:
                         cost_route += route_graph.get_cost(route[i], route[i+1])
+                
                 if route_not_viable == False and cost_route < min_route_cost:
+                    print('best route found')
                     best_route = route
-                    min_cost = cost_route
+                    min_route_cost = cost_route
                     cost_route = 0 # reset cost counter
             
             # If viable route found, ...
-            if min_route_cost != infinity:
+            if min_route_cost:
                 # ...assign as best route for that itinerary...
                 best_route.append(best_route)
                 # ...and add aircraft code...
                 best_route.append(aircraft_code)
                 # ...and add cost to end of route
-                best_route.append(min_cost)
+                best_route.append(min_route_cost)
             else:
                 # ...use input itinerary and add aircraft code and...
                 best_route.append(aircraft_code)
