@@ -17,64 +17,73 @@ class RouteGraph:
     """
 
     def __init__(self, itinerary, airport_atlas):
+        """Create instance of RouteCraph object"""
+        # Nodes are a set of airport objects (initialise as empty)
         self._nodes = set()
 
         # Each edge initialised as empty list
-        self._triple_edges = collections.defaultdict(list) #TODO: Private edges and nodes? getters only?
+        self._edges = collections.defaultdict(list) #TODO: getters methods?
         # Weights initialised as as empty dictionaries
         self._distances = {}
         self._costs = {}
         
+        # Airport itinerary and information
+        self._itinerary = itinerary
+        self._airport_atlas = airport_atlas
+        
+        # Add nodes and edges to graph based airports in itinerary and data in atlas
+        self.build_graph(self._itinerary, self._airport_atlas)
         
         
-        
-        
- 
-    def add_node(self, airport): #FIXME: use objects instead of codes (other functions too)
-        """Add node (airport) to graph."""
-        self._nodes.add(airport)
-        
-    def airport_euro_rate(self, airport):
-        """
-        Return the euro exchange rate at the given airport
-        """
-        exch_rate = airport_atlas.get_euro_rate(airport)
-        return exch_rate
- 
- 
-    def add_edge(self, from_node, to_node, atlas=AirportAtlas()): # TODO: from/to_airport not node?
-        """Add edge between two nodes."""
-        if from_node != to_node: # no self edges
-            self._triple_edges[to_node].append(from_node)
-            # Distance weight
-            distance = atlas.distance_between_airports(from_node, to_node)
-            self._distances[(from_node, to_node)] = self._distances[(to_node, from_node)] = distance
-            # Cost weights
-            self._costs[(from_node, to_node)] = self.airport_euro_rate(from_node) * distance
-            self._costs[(to_node, from_node)] = self.airport_euro_rate(from_node) * distance
-    
-            
-    def bulid_from_atlas(self, airport_atlas):
-        """Add nodes and edges based on entire contents of AirportAtlas object"""
-        # List of airport codes 
-        code_list = airport_atlas.get_code_list()
-        # Add nodes
+    def build_graph(self, itinerary, airport_atlas):
+        """Add nodes and edges according to airports in itinerary and data in atlas"""
+        code_list = itinerary[0:-1]
         for airport_code in code_list:
             self.add_node(airport_code)
         # Add edges between all (unordered) pairs of nodes (airport codes)
         all_node_pairs = list(itertools.combinations(code_list, 2))
 #         print(all_node_pairs)
         for pair in all_node_pairs:
-            self.add_edge(*pair, atlas=airport_atlas)
+            self.add_edge(*pair)
+        
+ 
+    def add_node(self, airport_code): #FIXME: use objects instead of codes (other functions too)
+        """Add node (airport) to graph."""
+        airport = self._airport_atlas.get_airport(airport_code)
+        self._nodes.add(airport)
+        
+        
+    def airport_euro_rate(self, airport):
+        """
+        Return the euro exchange rate at the given airport
+        """
+        exch_rate = self._airport_atlas.get_euro_rate(airport)
+        return exch_rate
+ 
+ 
+    def add_edge(self, from_node, to_node): # TODO: from/to_airport not node?
+        """Add edge between two nodes."""
+        if from_node != to_node: # no self edges
+            self._edge[to_node].append(from_node)
+            # Distance weight
+            distance = self._airport_atlas.distance_between_airports(from_node, to_node)
+            self._distances[(from_node, to_node)] = self._distances[(to_node, from_node)] = distance
+            # Cost weights
+            exch_rate1 = self._airport_atlas.airport_euro_rate(from_node)
+            exch_rate2 = self._airport_atlas.airport_euro_rate(to_node)
+            self._costs[(from_node, to_node)] = distance * exch_rate1
+            self._costs[(to_node, from_node)] = distance * exch_rate2
             
     
     def get_distance(self, airport1, airport2):
         """Return the distance between two airports as a float."""
         return self._distances[(airport1, airport1)]
     
+    
     def get_cost(self, airport1, airport2):
         """Return the (fuel) cost between two airports as a float."""
         return self._costs[(airport1, airport1)]
+    
  
     def __str__(self):
         string = "Vertices: " + str(self._nodes) + "\n"
@@ -97,8 +106,7 @@ class Itineraries:
         Set csv_filename parameter to construct dictionary from the csv
         """
         self.load_data(itineraries_csv_filepath)
-        self._airport_atlas = airport_atlas
-        
+        self._airport_atlas = airport_atlas   
     
     
     def load_data(self, itineraries_csv_filepath):
@@ -140,7 +148,7 @@ class Itineraries:
         return route_permutations
     
         
-    def best_routes(self, route_permutations, aircraft_dict): # TODO: check aircraft range against distance graph
+    def best_routes(self, route_permutations, aircraft_dict):
         """
         For each itinerary, get cheapest viable route based on the possible permutations.
         
