@@ -1,7 +1,7 @@
 [
   "tests/test_airports.py::test_Aiport",
-  "tests/test_airports.py::test_construct_default_AirportAtlas",
-  "tests/test_airports.py::test_AirportAtlas_dict",
-  "tests/test_airports.py::test_AirportAtlas_list",
-  "tests/test_airports.py::test_distance"
+  "tests/test_airports.py::test_get_airport",
+  "tests/test_airports.py::test_distance",
+  "tests/test_airports.py::test_rate",
+  "tests/test_airports.py::test_cost"
 ]

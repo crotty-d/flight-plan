@@ -1,5 +1,6 @@
 {
   "flight_plan/aircraft.py": true,
+  "tests/test_airports.py::test_construct_default_AirportAtlas": true,
   "tests/test_airports.py::test_default_AirportAtlas_dict": true,
   "tests/test_airports.py::test_great_circle_distance": true
 }

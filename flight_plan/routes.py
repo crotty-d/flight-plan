@@ -88,7 +88,7 @@ class Itineraries:
     
     _itinerary_list = []
 
-    def __init__(self, itinerary_list=[], csv_filepath=None):
+    def __init__(self, itineraries_csv_filepath, airport_atlas):
         """
         Create Itineraries object.
         
@@ -96,19 +96,25 @@ class Itineraries:
         Dictionary values must be Airport objects.
         Set csv_filename parameter to construct dictionary from the csv
         """
+        self.load_data(itineraries_csv_filepath)
+        self._airport_atlas = airport_atlas
         
-        if csv_filepath is not None:
-            with open(csv_filepath) as f: #FIXME: relative path
+    
+    
+    def load_data(self, itineraries_csv_filepath):
+        try:
+            with open(itineraries_csv_filepath) as f: #FIXME: relative path
                 reader = csv.reader(f)
                 row_idx = 0
                 for line in reader:
                     self._itinerary_list[row_idx] = [field for field in line]
                     row_idx += 1
-        else:
-            self._itinerary_list = itinerary_list
+        except IOError as e:
+            print(e)
         
     def get_itinerary_list(self):
         return self._itinerary_list
+    
     
     def route_permutations(self): # TODO: limit to perms starting and ending on home
         """
@@ -132,6 +138,7 @@ class Itineraries:
             route_permutations.append(permutations)     
         
         return route_permutations
+    
         
     def best_routes(self, route_permutations, aircraft_dict): # TODO: check aircraft range against distance graph
         """
@@ -142,6 +149,8 @@ class Itineraries:
         # Go through list of permutations of for each itinerary to find best route
         best_routes = []
         for itinerary in route_permutations: # TODO: Maybe Numpy or Pandas here?
+            # Create route graph for itinerary
+            route_graph = RouteGraph(itinerary, self._airport_atlas)
             # Aircraft range (limits possible routes)
             aircraft_code = self.itinerary[-1]
             aircraft_range = aircraft_dict.get_aircraft(aircraft_code).get_range()
@@ -178,7 +187,6 @@ class Itineraries:
         
         return best_routes
     
-    # TODO: Dyjkstra or MST?
     
     
     

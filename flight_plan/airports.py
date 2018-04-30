@@ -42,9 +42,9 @@ class AirportAtlas:
     # Dictionary to store Airport objects
     _airports_dict = {}
     # List to store airport codes only (allows faster iteration through these)
-    _airport_code_list =[] #FIXME: Still need?    
+    _airport_code_list =[] #FIXME: Still need?
         
-    def __init__(self, country_curr_coddes, euro_rates, csv_filename:str=None):
+    def __init__(self, csv_filename:str, country_curr_codes, euro_rates):
         """
         Create instance of AirportAtlas comprising dictionary of Airport objects.
         
@@ -52,11 +52,10 @@ class AirportAtlas:
         Dictionary values must be Airport objects.
         Set csv_filename parameter to construct dictionary from the csv
         """
-        if csv_filename is not None:
-            self.load_data(csv_filename)
-        else:           
-            self._airports_dict = {}
-            
+        self.load_data(csv_filename)
+        self._country_curr_codes = country_curr_codes
+        self._euro_rates = euro_rates
+        
             
     def load_data(self, csv_filename:str=None):
         """Load data from CSV file"""
@@ -99,24 +98,29 @@ class AirportAtlas:
         return distance  
       
     
-    def distance_between_airports(self, airport_code1, airport_code2):
+    def distance_between_airports(self, airport1, airport2):
         """
         Return the distance between two airports as a float.
         """
-        airport1 = self._airports_dict[airport_code1]
-        airport2 = self._airports_dict[airport_code2]
         coordinates = (airport1.get_latitude(), airport1.get_longitude(), airport2.get_latitude(), airport2.get_longitude())
         distance = self.great_circle_distance(*coordinates)
         return distance    
     
     
-    def airport_euro_rate(self, airport):
+    def airport_euro_rate(self, airport_code):
         """
         Return the euro exchange rate at the given airport
         """
+        airport = self._airports_dict[airport_code]
         country = airport.get_country()
-        currency_code = CountryCurrencyCodes.get_code(country)
-        exch_rate = EuroRates.get_rate(currency_code)
+        currency_code = self._country_curr_codes.get_code(country)
+        exch_rate = self._euro_rates.get_rate(currency_code)
         return exch_rate
-
+    
+    
+    def cost_between_airports(self, distance, exch_rate):
+        """
+        Return the distance between two airports as a float.
+        """
+        return distance * exch_rate
 
