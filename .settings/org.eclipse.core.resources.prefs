@@ -1,7 +1,9 @@
 eclipse.preferences.version=1
 encoding//flight_plan/__init__.py=utf-8
-encoding//flight_plan/cli.py=utf-8
-encoding//flight_plan/flight_plan.py=utf-8
+encoding//flight_plan/airports.py=utf-8
+encoding//flight_plan/currencies.py=utf-8
+encoding//flight_plan/main.py=utf-8
+encoding//flight_plan/routes.py=utf-8
 encoding//tests/test_aircraft.py=utf-8
 encoding//tests/test_airports.py=utf-8
 encoding//tests/test_currencies.py=utf-8

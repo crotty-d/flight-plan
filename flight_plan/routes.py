@@ -1,4 +1,5 @@
-import os
+# -*- coding: utf-8 -*-
+
 import csv
 import collections
 import itertools
@@ -6,11 +7,10 @@ import itertools
   
 class RouteGraph:
     """ 
-    Mixed multigraph (triple edges) of airports for calculating different itinerary costs.
+    Directed multigraph (double edges) of airports for calculating different itinerary costs.
     
-    Three edges connect each pair of nodes (airport code): one undirected edge weighted by great-circle distance,
-    and two oppositely directed edges weighted by fuel cost (inter-airport distance * Euro conversion rate).
-    These triple edges are simply referred to as edges in the codes.
+    Two doubly weighted edges connect each pair of nodes (airport codes): Each is symmetrically weighted (~undirected) by great-circle distance,
+    and asymmetrically weighted (~directed) by fuel cost (inter-airport distance * Euro conversion rate).
     """
 
     def __init__(self, itinerary, airport_atlas):
@@ -19,7 +19,7 @@ class RouteGraph:
         self._nodes = set()
 
         # Each edge initialised as empty list
-        self._edges = collections.defaultdict(list) #TODO: getters methods?
+        self._edges = collections.defaultdict(list)
         # Weights initialised as as empty dictionaries
         self._distances = {}
         self._costs = {}
@@ -34,17 +34,13 @@ class RouteGraph:
         
     def build_graph(self, itinerary, airport_atlas):
         """Add nodes and edges according to airports in itinerary and data in atlas"""
-        code_list = itinerary[0:-1]
+        code_list = itinerary
         for airport_code in code_list:
             self.add_node(airport_code)
-        # Add edges between all (unordered) pairs of nodes (airport codes)
-        all_node_pairs = list(itertools.combinations(self._nodes, 2))
-        for pair in all_node_pairs:
-            self.add_edge(*pair)
-            
-#         for node_i in self._nodes:
-#             for node_j in self._nodes:
-#                 self.add_edge(node_j, node_i)
+        # Add edges between all nodes (airport codes)
+        for node_i in self._nodes:
+            for node_j in self._nodes:
+                self.add_edge(node_j, node_i)
         
  
     def add_node(self, airport_code):
@@ -61,17 +57,15 @@ class RouteGraph:
  
  
     def add_edge(self, from_node, to_node): # TODO: from/to_airport not node?
-        """Add (trilple) edge between two nodes."""
+        """Add edge between two nodes."""
         if from_node != to_node: # no self edges
             self._edges[to_node].append(from_node)
             # Distance weight
             distance = self._airport_atlas.distance_between_airports(from_node, to_node)
-            self._distances[(from_node, to_node)] = self._distances[(to_node, from_node)] = distance
+            self._distances[(from_node, to_node)] = distance
             # Cost weights
-            exch_rate1 = self._airport_atlas.airport_euro_rate(from_node)
-            exch_rate2 = self._airport_atlas.airport_euro_rate(to_node)
-            self._costs[(from_node, to_node)] = distance * exch_rate1
-            self._costs[(to_node, from_node)] = distance * exch_rate2
+            exch_rate = self._airport_atlas.airport_euro_rate(from_node)
+            self._costs[(from_node, to_node)] = distance * exch_rate
             
     
     def get_distance(self, from_node, to_node):
@@ -97,8 +91,9 @@ class Itineraries:
     """...""" #FIXME
     
     _itinerary_list = []
+    _best_routes = []
 
-    def __init__(self, itineraries_csv_filepath, airport_atlas, aircraft_dict):
+    def __init__(self, itineraries_csv_filepath, airport_atlas, aircraft_dict, outut_csv_path='/home/d/Git/flight_plan/flight_plan/output/bestroutes.csv'):
         """
         Create Itineraries object.
         
@@ -109,6 +104,8 @@ class Itineraries:
         self.load_data(itineraries_csv_filepath)
         self._airport_atlas = airport_atlas
         self._aircraft_dict = aircraft_dict
+        self._outut_csv_path = outut_csv_path
+        self._best_routes = []
     
     
     def load_data(self, itineraries_csv_filepath):
@@ -158,62 +155,81 @@ class Itineraries:
         # Go through list of permutations of for each itinerary to find best route
         permutations_for_itineraries = self.route_permutations()
         # Initialise output list of best routes
-        best_routes = []
         for route_permutations in permutations_for_itineraries:
             # Create route graph for itinerary
             itinerary = route_permutations['airport_codes']
             print(itinerary)
             route_graph = RouteGraph(itinerary, self._airport_atlas) # list slice to avoid repeated home airport
-            print(route_graph.__str__())
+            
             # Aircraft range (limits possible routes)
             aircraft_code = route_permutations['aircraft']
             aircraft_range = self._aircraft_dict.get_aircraft(aircraft_code).get_range()
-            print(aircraft_range)
+            print('Aircraft range: ', aircraft_range)
+            
             # Initialise variables; min value as high as possible
             infinity = float('+inf')
             min_route_cost = infinity
             
-            # Get cheapest route in itinerary
-            best_route = itinerary
+            # Get best (cheapest) route in itinerary
+            best_route = itinerary # initalise best route as order given in input file
+            best_route.append(itinerary[0]) # make round trip
             for route in route_permutations['permutations']:
                 cost_route = 0
                 route_not_viable = False
-                # Add up cost of route legs
-                for i in range(len(route)-1): # exclude final destination
+                # Sum cost of route legs
+                for i in range(len(route)-1):
                     distance_leg = route_graph.get_cost(route[i], route[i+1])
-                    print(distance_leg)
                     if distance_leg > aircraft_range:
-#                         route_not_viable = True
-#                         break
-                        pass
+                        print('Out of range: route not viable')
+                        route_not_viable = True
+                        break
                     else:
                         cost_route += route_graph.get_cost(route[i], route[i+1])
                 
-                if route_not_viable == False and cost_route < min_route_cost:
-                    print('best route found')
+                if not route_not_viable and cost_route < min_route_cost:
+                    print('New best route found. Cost: ', cost_route)
                     best_route = route
                     min_route_cost = cost_route
                     cost_route = 0 # reset cost counter
             
             # If viable route found, ...
-            if min_route_cost:
-                # ...assign as best route for that itinerary...
-                best_route.append(best_route)
+            if min_route_cost < infinity:
                 # ...and add aircraft code...
                 best_route.append(aircraft_code)
                 # ...and add cost to end of route
                 best_route.append(min_route_cost)
             else:
-                # ...use input itinerary and add aircraft code and...
+                # If not, just add input itinerary and add aircraft code and...
                 best_route.append(aircraft_code)
                 # ...add 'No viable route' to end
                 best_route.append('No viable route')
                 
             # Add to output list of best routes
-            best_routes. append(best_route)
+            self._best_routes.append(best_route)
         
-        return best_routes
+        # Display best routes in terminal
+        print('\n-------------\nBEST ROUTES\n-------------')
+        for route in self._best_routes:
+            print(route)
+            
+        return self._best_routes
     
+    
+    def routes_to_csv(self):
+        """
+        Output best routes to CSV file.
+        
+        Note: Run best_routes method first; otherwise no best routes will have
+        been calculated and the file will be empty.
+        """
+        try:
+            with open(self._outut_csv_path, 'w') as f:
+                writer = csv.writer(f)
+                for route in self._best_routes:
+                    writer.writerow(route)
+            print('CSV saved as', self._outut_csv_path)
+        except IOError as e:
+                print(e)
     
     
     

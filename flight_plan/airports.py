@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 import csv
 from math import pi, sin, cos, acos
@@ -41,8 +43,6 @@ class AirportAtlas:
     
     # Dictionary to store Airport objects
     _airports_dict = {}
-    # List to store airport codes only (allows faster iteration through these)
-    _airport_code_list =[] #FIXME: Still need?
         
     def __init__(self, csv_filename:str, country_curr_codes, euro_rates):
         """
@@ -63,7 +63,6 @@ class AirportAtlas:
             with open(os.path.join('/home/d/Git/flight_plan/flight_plan/input', csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
                 reader = csv.reader(f)
                 for line in reader:
-                    self._airport_code_list.append(line[4])
                     self._airports_dict[line[4]] = Airport(line[4], line[2], line[3], line[6], line[7])    
         except IOError as e:
             print(e)

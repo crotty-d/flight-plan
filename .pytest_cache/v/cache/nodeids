@@ -1,7 +1,4 @@
 [
-  "tests/test_airports.py::test_Aiport",
-  "tests/test_airports.py::test_get_airport_city",
-  "tests/test_airports.py::test_distance",
-  "tests/test_airports.py::test_rate",
-  "tests/test_airports.py::test_cost"
+  "tests/test_routes.py::test_best_routes",
+  "tests/test_routes.py::test_to_csv"
 ]
