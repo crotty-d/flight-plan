@@ -63,7 +63,7 @@ class AirportAtlas:
     def load_data(self, csv_filename:str, input_dir):
         """Load data from CSV file"""
         try:    
-            with open(os.path.join(input_dir, csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
+            with open(os.path.join(input_dir, csv_filename), 'rt', encoding='utf8') as f:
                 reader = csv.reader(f)
                 for line in reader:
                     self._airports_dict[line[4]] = Airport(line[4], line[2], line[3], line[6], line[7])    
@@ -74,11 +74,6 @@ class AirportAtlas:
     def get_dict(self):
         """Return dictionary of Airport objects for all airports in atlas"""
         return self._airports_dict
-    
-    
-    def get_code_list(self):
-        """Return list of airport codes for all airports in atlas"""
-        return self._airport_code_list
     
     
     def get_airport(self, airport_code:str):

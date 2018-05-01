@@ -32,7 +32,7 @@ class CountryCurrencyCodes:
             
     def load_data(self, csv_filename, input_dir):
         try:
-            with open(os.path.join(input_dir, csv_filename), 'rt', encoding='utf8') as f: #FIXME: relative path
+            with open(os.path.join(input_dir, csv_filename), 'rt', encoding='utf8') as f:
                 reader = csv.reader(f)
                 next(reader) # skip field names (first row)
                 for line in reader:
