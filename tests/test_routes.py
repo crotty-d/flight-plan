@@ -24,7 +24,7 @@ atlas = AirportAtlas('airport.csv', currency_codes, euro_rates)
 aircraft_dict = AircraftDictionary(csv_filename='aircraft.csv')
 # Testroutes
 repo_dir = os.path.dirname(os.path.dirname(__file__))
-csv_filepath = os.path.join(repo_dir, 'flight_plan', 'input', 'testroutes.csv')
+csv_filepath = os.path.join(repo_dir, 'flight_plan', 'input', 'input.csv')
 
 
 #-- Itinerary tests --

@@ -1,4 +1,4 @@
 [
-  "tests/test_input.py::test_input_data_exsists",
-  "tests/test_input.py::test_itinerary_input_file_exsists"
+  "tests/test_routes.py::test_best_routes",
+  "tests/test_routes.py::test_to_csv"
 ]

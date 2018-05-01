@@ -236,7 +236,7 @@ class Itineraries:
                 writer = csv.writer(f)
                 for route in self._best_routes:
                     writer.writerow(route)
-            print('CSV saved as', self._outut_csv_path)
+            print('\nCSV saved as', self._outut_csv_path, '\n')
         except IOError as e:
                 print(e)
     
