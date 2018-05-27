@@ -3,8 +3,8 @@ Flight Plan
 
 Python package to calculate the best round trip route (cheapest cost) for an itinerary returning to the home airport using each airport once (5 airport solution).
 
-![alt text](https://github.com/crotty-d/dublin-bikes/raw/master/images/flow_diagram1.png)
-![alt text](https://github.com/crotty-d/dublin-bikes/raw/master/images/route_graph.png)
+![alt text](https://github.com/crotty-d/flight-plan/raw/master/images/flow_diagram1.png)
+![alt text](https://github.com/crotty-d/flight-plan/raw/master/images/route_graph.png)
 
 
 Prerequisites
