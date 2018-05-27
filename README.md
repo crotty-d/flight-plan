@@ -1,26 +1,24 @@
-Flight Plan
-===========
+# Flight Plan
 
 Python package to calculate the best round trip route (cheapest cost) for an itinerary returning to the home airport using each airport once (5 airport solution).
 
+## Overall flow diagram
 ![alt text](https://github.com/crotty-d/flight-plan/raw/master/images/flow_diagram1.png)
+## Route graph
 ![alt text](https://github.com/crotty-d/flight-plan/raw/master/images/route_graph.png)
 
 
-Prerequisites
-----------------------
+## Prerequisites
 
 The project was created in a Python 3.6 environment. It uses only standard libraries.
 
 
-Installation and Setup
-----------------------
+## Installation and Setup
 
 Simply download the project repository.
 
 
-Running the Program
--------------------
+## Running the Program
 
 Open terminal.
 
@@ -37,8 +35,7 @@ Then the same for the CSV file you would like to output the best routes to. If y
 The calculation, along with some informative feedback in the terminal, should begin once both have been entered. An output CSV file should also be created.
 
 
-Running the Tests
-------------------
+## Running the Tests
 
 The tests are designed to run via pytest, so you can enter 'pip install pytest' if its's not already installed.
 
